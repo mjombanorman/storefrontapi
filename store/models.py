@@ -13,28 +13,32 @@ class Collection(models.Model):
 class Product(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField()
-    price=models.DecimalField(max_digits=10,decimal_places=4)
+    slug = models.SlugField()
+    unit_price=models.DecimalField(max_digits=10,decimal_places=4)
     inventory = models.IntegerField()
     last_update = models.DateTimeField(auto_now=True)
     collection = models.ForeignKey(Collection,on_delete=models.PROTECT)
-    promotions = models.ManyToManyField(Promotion, blank=True)
+    promotions = models.ManyToManyField(Promotion,blank=True)
 
 
 class Customer(models.Model):
     MEMBERSHIP_BRONZE='B'
     MEMBERSHIP_SILVER= 'S'
     MEMBERSHIP_GOLD= 'G'
+    
     MEMBERSHIP_CHOICES = [
-        ( MEMBERSHIP_BRONZE,'Bronze'),
+        (MEMBERSHIP_BRONZE,'Bronze'),
         (MEMBERSHIP_SILVER,'Sliver'),
         (MEMBERSHIP_GOLD,'Gold'),
     ]
+
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=100)
     birthdate = models.DateTimeField(null=True)
-    membership = models.CharField(max_length=1,choices=MEMBERSHIP_BRONZE)
+    membership = models.CharField(max_length=1,choices=MEMBERSHIP_CHOICES,default=MEMBERSHIP_BRONZE)
+
 
 class Order(models.Model):
     PAYMENT_STATUS_PENDING = 'P'
@@ -45,7 +49,6 @@ class Order(models.Model):
         (PAYMENT_STATUS_COMPLETE, 'Complete'),
         (PAYMENT_STATUS_FAILED, 'Failed')
     ]
-    
     placed_at = models.DateTimeField(auto_now_add=True)
     payment_status = models.CharField(
         max_length=1, choices=PAYMENT_STATUS_CHOICES, default=PAYMENT_STATUS_PENDING)
@@ -62,8 +65,6 @@ class Address(models.Model):
     street = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
     customer = models.OneToOneField(Customer,on_delete=models.CASCADE,primary_key=True)
-
-
 
 class Cart(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
