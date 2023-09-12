@@ -1,11 +1,11 @@
-from typing import Any
 from django.contrib import admin,messages
 from django.db.models.query import QuerySet
-from django.http.request import HttpRequest
+from django.contrib.contenttypes.admin  import GenericTabularInline
 from .models import *
 from django.db.models import Count
 from django.utils.html import format_html,urlencode
 from django.urls import reverse
+from tag.models import TaggedItem
 
 
 class InventoryFilter(admin.SimpleListFilter):
@@ -108,8 +108,15 @@ class CustomerAdmin(admin.ModelAdmin):
             orders_count=Count('order')
         )
 
+class OrderItemInline(admin.TabularInline):
+    autocomplete_fields = ['product']
+    min_num = 1
+    max_num = 10
+    model = OrderItem
+    extra = 0
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
+    inlines = [OrderItemInline]
     list_display = ['id', 'placed_at', 'customer']
     autocomplete_fields = ['customer']
     list_per_page = 20
