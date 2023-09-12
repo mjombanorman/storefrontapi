@@ -1,5 +1,5 @@
 from typing import Any
-from django.contrib import admin
+from django.contrib import admin,messages
 from django.db.models.query import QuerySet
 from django.http.request import HttpRequest
 from .models import *
@@ -7,9 +7,18 @@ from django.db.models import Count
 from django.utils.html import format_html,urlencode
 from django.urls import reverse
 
-class ProductAdmin(admin.ModelAdmin):
-    list_display = ['title', 'unit_price','inventory_status','collection_title']
-# Register your models here.
+
+class InventoryFilter(admin.SimpleListFilter):
+    title = 'inventory'
+    parameter_name = 'inventory'
+    def lookups(self,request,model_admin):
+        return [
+            ('<10','Low')
+        ]
+    def queryset(self,request,queryset:QuerySet):
+        if self.value() == '<10':
+            return queryset.filter(inventory__lt=10)
+        
 @admin.register(Collection)
 class CollectionAdmin(admin.ModelAdmin):
     list_display = ['title','products_count']
@@ -32,8 +41,13 @@ class CollectionAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
+    actions = ['clear_inventory']
     list_display = ['title', 'unit_price','inventory_status','collection_title']
     list_editable = ['unit_price']
+    list_filter = ['collection','last_update',InventoryFilter]
+    # list_display_links = ['title']
+    # search_fields = ['title']
+    # autocomplete_fields = ['collection']
     list_per_page = 20
     list_select_related = ['collection']
 
@@ -46,6 +60,10 @@ class ProductAdmin(admin.ModelAdmin):
             return 'LOW'
         else:
             return 'OK'
+    def clear_inventory(self,request,queryset:QuerySet):
+        updated_count = queryset.update(inventory=0)
+        self.message_user(request,f'{updated_count} products were successfully updated')
+
 
 
 @admin.register(Customer)
