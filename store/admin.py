@@ -41,13 +41,13 @@ class CollectionAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
+    prepopulated_fields = {
+        'slug': ['title']
+    }
     actions = ['clear_inventory']
     list_display = ['title', 'unit_price','inventory_status','collection_title']
     list_editable = ['unit_price']
     list_filter = ['collection','last_update',InventoryFilter]
-    # list_display_links = ['title']
-    # search_fields = ['title']
-    # autocomplete_fields = ['collection']
     list_per_page = 20
     list_select_related = ['collection']
 
