@@ -15,6 +15,10 @@ class InventoryFilter(admin.SimpleListFilter):
         return [
             ('<10','Low')
         ]
+    
+    def get_queryset(self,request,queryset:QuerySet):
+        return super().get_queryset(request).annotate(products_count=Count('products'))
+    
     def queryset(self,request,queryset:QuerySet):
         if self.value() == '<10':
             return queryset.filter(inventory__lt=10)
