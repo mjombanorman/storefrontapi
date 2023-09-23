@@ -19,13 +19,11 @@ class CollectionSerializer(serializers.ModelSerializer):
     products_count = serializers.IntegerField(read_only=True)
 
 
-class ReviewSerializer(serializers.Serializer):
+class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
-        fields = ['id','name','description','created_at','product_id']
-    
-    def validate(self,data):
-        if data['product_id'] == None:
-            raise serializers.ValidationError('product_id is required')
-        return data
-   
+        fields = ['id','name','description','created_at']
+
+    def create(self,validated_data):
+        product_id = self.context['product_id']
+        return Review.objects.create(product_id=product_id,**validated_data)
