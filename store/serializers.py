@@ -1,6 +1,6 @@
 from decimal import Decimal
 from rest_framework import serializers
-from store.models import Product,Collection
+from store.models import *
     
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
@@ -17,3 +17,15 @@ class CollectionSerializer(serializers.ModelSerializer):
         model = Collection
         fields = ['id','title','products_count']
     products_count = serializers.IntegerField(read_only=True)
+
+
+class ReviewSerializer(serializers.Serializer):
+    class Meta:
+        model = Review
+        fields = ['id','name','description','created_at','product_id']
+    
+    def validate(self,data):
+        if data['product_id'] == None:
+            raise serializers.ValidationError('product_id is required')
+        return data
+   

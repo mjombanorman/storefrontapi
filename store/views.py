@@ -28,3 +28,8 @@ class CollectionViewSet(ModelViewSet):
         if   Product.objects.filter(collection_id=kwargs['pk']).count() > 0:
             return Response({'error': 'collection cannot be deleted because it is associated with an order item'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
         return super().destroy(request, *args, **kwargs)
+
+
+class ReviewViewSet(ModelViewSet):
+    queryset=  Review.objects.all()
+    serializer_class = ReviewSerializer
