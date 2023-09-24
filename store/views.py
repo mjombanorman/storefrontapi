@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet,GenericViewSet
 from rest_framework.filters import SearchFilter,OrderingFilter
-from rest_framework.mixins import CreateModelMixin,RetrieveModelMixin
+from rest_framework.mixins import CreateModelMixin,RetrieveModelMixin,DestroyModelMixin
 from .models import *
 from .serializers import *
 from .filters import *
@@ -22,7 +22,6 @@ class ProductViewSet(ModelViewSet):
     search_fields = ['title','description']
     ordering_fields = ['unit_price','last_update']
 
-
     def get_serializer_context(self):
         return {'request': self.request}
     def destroy(self, request, *args, **kwargs):
@@ -30,11 +29,11 @@ class ProductViewSet(ModelViewSet):
             return Response({'error': 'product cannot be deleted because it is associated with an order item'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
         return super().destroy(request, *args, **kwargs)
 
+
 class CollectionViewSet(ModelViewSet):
     queryset = Collection.objects.annotate(
         products_count=Count('products')).all()
     serializer_class = CollectionSerializer
-
 
     def destroy(self, request, *args, **kwargs):
         if   Product.objects.filter(collection_id=kwargs['pk']).count() > 0:
@@ -50,11 +49,23 @@ class ReviewViewSet(ModelViewSet):
         return {'product_id': self.kwargs['product_pk']}
 
 
-class CartViewSet(RetrieveModelMixin,CreateModelMixin,GenericViewSet):
+class CartItemViewSet(ModelViewSet):
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return AddCartItemSerializer
+        return CartItemSerializer
+    
+    def get_serializer_context(self):
+        return {'cart_id': self.kwargs['cart_pk']}
+
+    def get_queryset(self):
+        return CartItem.objects.filter(cart_id=self.kwargs['cart_pk']).select_related('product')
+
+class CartViewSet(RetrieveModelMixin,CreateModelMixin,DestroyModelMixin,GenericViewSet):
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
 
 
-class CartItemViewSet(ModelViewSet):
-    queryset = CartItem.objects.prefetch_related('items__product').all()
-    serializer_class = CartItemSerializer
+
+    
