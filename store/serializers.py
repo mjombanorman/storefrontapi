@@ -83,3 +83,11 @@ class AddCartItemSerializer(serializers.ModelSerializer):
         return self.instance
 
        
+class UpdateCartItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CartItem
+        fields = ['quantity']
+    def validate_quantity(self,value):
+        if value <= 0:
+            raise serializers.ValidationError('Quantity must be greater than zero')
+        return value
