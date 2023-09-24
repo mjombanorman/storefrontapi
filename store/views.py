@@ -2,8 +2,9 @@ from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet,GenericViewSet
 from rest_framework.filters import SearchFilter,OrderingFilter
+from rest_framework.mixins import CreateModelMixin,RetrieveModelMixin
 from .models import *
 from .serializers import *
 from .filters import *
@@ -29,7 +30,6 @@ class ProductViewSet(ModelViewSet):
             return Response({'error': 'product cannot be deleted because it is associated with an order item'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
         return super().destroy(request, *args, **kwargs)
 
-
 class CollectionViewSet(ModelViewSet):
     queryset = Collection.objects.annotate(
         products_count=Count('products')).all()
@@ -41,7 +41,6 @@ class CollectionViewSet(ModelViewSet):
             return Response({'error': 'collection cannot be deleted because it is associated with an order item'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
         return super().destroy(request, *args, **kwargs)
 
-
 class ReviewViewSet(ModelViewSet):
     serializer_class = ReviewSerializer
     def get_queryset(self):
@@ -49,3 +48,13 @@ class ReviewViewSet(ModelViewSet):
 
     def get_serializer_context(self):
         return {'product_id': self.kwargs['product_pk']}
+
+
+class CartViewSet(RetrieveModelMixin,CreateModelMixin,GenericViewSet):
+    queryset = Cart.objects.all()
+    serializer_class = CartSerializer
+
+
+class CartItemViewSet(ModelViewSet):
+    queryset = CartItem.objects.prefetch_related('items__product').all()
+    serializer_class = CartItemSerializer

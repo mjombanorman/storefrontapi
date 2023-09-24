@@ -124,3 +124,11 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = ['id', 'placed_at', 'customer']
     autocomplete_fields = ['customer']
     list_per_page = 20
+
+@admin.register(Cart)
+class CartAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(CartItem)
+class CartItemAdmin(admin.ModelAdmin):
+    pass
