@@ -1,12 +1,13 @@
 from django.db.models import Count
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
-from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter,OrderingFilter
 from .models import *
 from .serializers import *
 from .filters import *
-
+from .pagination import *
 
 
 # Create your views here.
@@ -14,9 +15,12 @@ from .filters import *
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend,SearchFilter,OrderingFilter]
     filterset_class = ProductFilter
-    # filterset_fields = ['collection_id','unit_price']
+    pagination_class = DefaultPagination
+    search_fields = ['title','description']
+    ordering_fields = ['unit_price','last_update']
+
 
     def get_serializer_context(self):
         return {'request': self.request}
