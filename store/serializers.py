@@ -91,3 +91,9 @@ class UpdateCartItemSerializer(serializers.ModelSerializer):
         if value <= 0:
             raise serializers.ValidationError('Quantity must be greater than zero')
         return value
+
+
+class CustomerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customer
+        fields = ['id','user_id','phone','birthdate','membership']

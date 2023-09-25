@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet,GenericViewSet
 from rest_framework.filters import SearchFilter,OrderingFilter
-from rest_framework.mixins import CreateModelMixin,RetrieveModelMixin,DestroyModelMixin
+from rest_framework.mixins import CreateModelMixin,RetrieveModelMixin,DestroyModelMixin,UpdateModelMixin
 from .models import *
 from .serializers import *
 from .filters import *
@@ -71,4 +71,6 @@ class CartViewSet(RetrieveModelMixin,CreateModelMixin,DestroyModelMixin,GenericV
 
 
 
-    
+class CustomerViewSet(CreateModelMixin,UpdateModelMixin,GenericViewSet):
+    queryset = Customer.objects.all()
+    serializer_class = CustomerSerializer
