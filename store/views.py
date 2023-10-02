@@ -85,6 +85,10 @@ class CustomerViewSet(CreateModelMixin,UpdateModelMixin,RetrieveModelMixin,Gener
         if self.request.method == 'GET':
             return [AllowAny()]
         return [IsAuthenticated]
+    
+    @action(detail=True,permission_classes=[ViewCustomerHistoryPermission])
+    def historty(self,request,pk):
+        return Response('Ok')
 
     @action(detail=False,methods=['GET','PUT'],permission_classes=[IsAuthenticated])
     def me(self,request):
@@ -97,3 +101,4 @@ class CustomerViewSet(CreateModelMixin,UpdateModelMixin,RetrieveModelMixin,Gener
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
+        
