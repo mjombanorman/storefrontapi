@@ -11,7 +11,7 @@ from .serializers import *
 from .filters import *
 from .pagination import *
 from rest_framework.permissions import IsAuthenticated,IsAdminUser
-from .permissions import IsAdminOrReadOnly
+from .permissions import IsAdminOrReadOnly,ViewCustomerHistoryPermission
 
 
 # Create your views here.
