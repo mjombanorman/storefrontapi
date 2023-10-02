@@ -10,6 +10,7 @@ from .models import *
 from .serializers import *
 from .filters import *
 from .pagination import *
+from rest_framework.permissions import IsAuthenticated
 
 
 # Create your views here.
@@ -72,16 +73,20 @@ class CartViewSet(RetrieveModelMixin,CreateModelMixin,DestroyModelMixin,GenericV
 
 
 
-class CustomerViewSet(CreateModelMixin,UpdateModelMixin,GenericViewSet):
+class CustomerViewSet(CreateModelMixin,UpdateModelMixin,RetrieveModelMixin,GenericViewSet):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        return [IsAuthenticated]
 
     @action(detail=False,methods=['GET','PUT'])
     def me(self,request):
-              
         (customer,created) =Customer.objects.get(user_id=request.user.id)
         if request.method == 'GET':
-        
             serializer = CustomerSerializer(customer)
             return Response(serializer.data)
         elif request.method == 'PUT':

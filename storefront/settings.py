@@ -78,14 +78,21 @@ WSGI_APPLICATION = 'storefront.wsgi.application'
 #     }
 # }
 # Database
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'storefrontapi',
+#         'USER': 'storefront_dba',
+#         'PASSWORD': 'st0r3f10n+',
+#         'HOST': '127.0.0.1',
+#         'PORT': '',
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'storefrontapi',
-        'USER': 'storefront_dba',
-        'PASSWORD': 'st0r3f10n+',
-        'HOST': '127.0.0.1',
-        'PORT': '',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -137,7 +144,10 @@ REST_FRAMEWORK = {
     'COERCE_DECIMAL_TO_STRING': False,
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ),
+    # 'DEFAULT_PERMISSION_CLASSES':[
+    #     'rest_framework.permissions.IsAuthenticated'
+    # ]
 
 }
 
