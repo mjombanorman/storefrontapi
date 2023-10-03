@@ -106,3 +106,13 @@ class CustomerViewSet(CreateModelMixin,UpdateModelMixin,RetrieveModelMixin,Gener
 class OrderViewSet(ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff:
+            return Order.objects.all()
+        
+        user_id= Customer.objects.only('id').get(user_id=user.id)
+        Order.objects.filter(customer_id=user_id)
+   
