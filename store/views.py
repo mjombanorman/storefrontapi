@@ -13,9 +13,6 @@ from .pagination import *
 from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from .permissions import IsAdminOrReadOnly,ViewCustomerHistoryPermission
 
-
-# Create your views here.
-
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -53,7 +50,6 @@ class ReviewViewSet(ModelViewSet):
     def get_serializer_context(self):
         return {'product_id': self.kwargs['product_pk']}
 
-
 class CartItemViewSet(ModelViewSet):
     http_method_names = ['get','post','patch','delete']
 
@@ -81,15 +77,10 @@ class CustomerViewSet(CreateModelMixin,UpdateModelMixin,RetrieveModelMixin,Gener
     serializer_class = CustomerSerializer
     permission_classes = [IsAdminUser]
     
-    def get_permissions(self):
-        if self.request.method == 'GET':
-            return [AllowAny()]
-        return [IsAuthenticated]
-    
     @action(detail=True,permission_classes=[ViewCustomerHistoryPermission])
     def historty(self,request,pk):
         return Response('Ok')
-
+    
     @action(detail=False,methods=['GET','PUT'],permission_classes=[IsAuthenticated])
     def me(self,request):
         customer=Customer.objects.get(user_id=request.user.id)
@@ -104,23 +95,19 @@ class CustomerViewSet(CreateModelMixin,UpdateModelMixin,RetrieveModelMixin,Gener
         
         
 class OrderViewSet(ModelViewSet):
-    # queryset = Order.objects.all()
-    # serializer_class = OrderSerializer
-    # permission_classes = [IsAuthenticated]
-    http_method_names = ['get','patch','delete','head','options']
+    http_method_names = ['get','post','patch','delete','head','options']
+
     def get_permissions(self):
         if self.request.method in ['PATCH','DELETE']:
             return [IsAdminUser()]
         return [IsAuthenticated()]
-            
-        return super().get_permissions()
+
     
     def create(self,request,*args,**kwargs):
         serializer = CreateOrderSerializer(data=request.data,context={'user_id':self.request.user.id})
         serializer.is_valid(raise_exception=True)
         order = serializer.save()
         serializer=OrderSerializer(order)
-        
         return Response(serializer.data)
     
     def get_serializer_class(self):
@@ -129,10 +116,7 @@ class OrderViewSet(ModelViewSet):
         elif self.request.method == 'PATCH':
             return UpdateOrderSerializer
         return OrderSerializer
-    
-    # def get_serializer_context(self):
-    #     return {'user_id':self.request.user.id}
-        
+       
     def get_queryset(self):
         user = self.request.user
         if user.is_staff:
