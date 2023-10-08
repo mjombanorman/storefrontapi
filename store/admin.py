@@ -47,7 +47,14 @@ class CollectionAdmin(admin.ModelAdmin):
             products_count=Count('product')
         )
 
+class ProductImageInline(admin.TabularInline):
+    model=ProductImage
+    readonly_fields=['thumbnail']
 
+    def thumbnail(self, instance):
+        if instance.image.name != '':
+            return format_html(f'<img src="{instance.image.url}" class="thumbnail"/>')
+        return ''
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     autocomplete_fields = ['collection']
@@ -61,6 +68,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_per_page = 20
     list_select_related = ['collection']
     search_fields = ['title']
+    inlines=[ProductImageInline]
 
     def collection_title(self, product):
         return product.collection.title
@@ -94,6 +102,11 @@ class ProductAdmin(admin.ModelAdmin):
         updated_count = queryset.update(inventory=0)
         self.message_user(
             request, f'{updated_count} products were successfully updated')
+        
+    class Media:
+        css = {
+            'all': ['store/styles.css']
+        }
 
 
 @admin.register(Customer)
