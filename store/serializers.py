@@ -4,10 +4,26 @@ from store.models import *
 from django.db import transaction
 from .signals import order_created
     
+
+
+
+class ProductImageSerializer(serializers.ModelSerializer):
+
+    def create(self,validated_data):
+        product_id=self.context['product_id']
+        product=Product.objects.get(pk=product_id)
+        # print (product)
+        # print (product.images.all())
+        return ProductImage.objects.create(product_id=product_id,**validated_data)
+    class Meta:
+        model = ProductImage
+        fields = ['id','image']
+
 class ProductSerializer(serializers.ModelSerializer):
+    images = ProductImageSerializer(many=True,read_only=True)
     class Meta:
         model = Product
-        fields = ['id','title','unit_price','slug','description','inventory','price_with_tax','collection']
+        fields = ['id','title','unit_price','slug','description','inventory','price_with_tax','collection','images']
     price_with_tax =serializers.SerializerMethodField(method_name='calculate_tax')
 
     def calculate_tax(self,product:Product):
@@ -156,16 +172,3 @@ class CreateOrderSerializer(serializers.Serializer):
             order_created.send_robust(self.__class__,order=order)
             return order
         
-
-
-class ProductImageSerializer(serializers.ModelSerializer):
-
-    def create(self,validated_data):
-        product_id=self.context['product_id']
-        product=Product.objects.get(pk=product_id)
-        # print (product)
-        # print (product.images.all())
-        return ProductImage.objects.create(product_id=product_id,**validated_data)
-    class Meta:
-        model = ProductImage
-        fields = ['id','image']
