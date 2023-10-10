@@ -3,3 +3,5 @@
 Pipfile
 Pipfile.lock
 media/*
+.pytest_cache
+__pycache__
