@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'djoser',
+    'silk',
     'debug_toolbar',
     'django_filters',
     "corsheaders",
@@ -55,8 +56,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+   
 ]
-
+if DEBUG:
+    MIDDLEWARE.append('silk.middleware.SilkyMiddleware')
 ROOT_URLCONF = 'storefront.urls'
 
 TEMPLATES = [
@@ -195,4 +198,16 @@ EMAIL_PORT=''
 CELERY_BROKER_URL = 'redis://localhost:6379/1'
 CELERY_BEAT_SCHEDULE= {
     
+}
+
+
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
 }
