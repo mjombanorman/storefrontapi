@@ -1,38 +1,41 @@
 import "./App.css";
-// import "bootstrap/dist/css/bootstrap.css";
-// import "./assets/css/style.css";
-// import "./assets/css/responsive.css";
-// import { Routes, Route } from "react-router-dom";
-// import Home from "./components/Home";
-// import About from "./components/About";
-// import Create from "./components/Create";
-// import NavBar from "./components/NavBar";
-// import Edit from "./components/Edit";
-// import Delete from "./components/Delete";
-// import Products from "./components/Products";
-import NavBar from "./pageassets/NavBar";
-import Products from "./pageassets/Products";
-import ItemCategories from "./pageassets/ItemCategories";
+import ShoppingCartApp from "./pageassets/ShoppingCartApp";
+  const shoppingProducts = [
+    {
+      id: 0,
+      name: "Nike VaporFly 4% Flyknit",
+      price: 209,
+      image:
+        "https://c.static-nike.com/a/images/f_auto,b_rgb:f5f5f5,w_880/acmoik7t1kfbprm8hsqs/vaporfly-4-flyknit-running-shoe-7R7zSn.jpg",
+      quantityInCart: 0,
+      inCart: false,
+    },
+    {
+      id: 1,
+      name: "Nike Air Monarch IV PR",
+      price: 89,
+      image:
+        "https://c.static-nike.com/a/images/f_auto,b_rgb:f5f5f5,w_880/vjsleghax3228bpidanh/air-monarch-iv-pr-shoe-qf64pl.jpg",
+      quantityInCart: 0,
+      inCart: false,
+    },
+    {
+      id: 2,
+      name: "Nike Air Max Deluxe SE",
+      price: 149,
+      image:
+        "https://c.static-nike.com/a/images/f_auto,b_rgb:f5f5f5,w_880/rkhls7wdxdydeg1vkwkt/air-max-deluxe-se-shoe-T6Vkl2.jpg",
+      quantityInCart: 0,
+      inCart: false,
+    },
+  ];
+
 
 function App() {
+
   return (
     <>
-      {/* <Base/> */}
-      <NavBar
-        // content={
-        //   <Routes>
-        //     <Route path="/" element={<Home />} />
-        //     <Route path="/about" element={<About />} />
-        //     <Route path="/create" element={<Create />} />
-        //     <Route path="/products" element={<Products />} />
-        //     <Route path="/edit/:id" element={<Edit />} />
-        //     <Route path="/delete/:id" element={<Delete />} />
-        //   </Routes>
-        // }
-      />
-      {/* <ItemCategories/>
-      <Products /> */}
-      <ProductDetail/>
+      <ShoppingCartApp items={shoppingProducts} />
     </>
   );
 }
