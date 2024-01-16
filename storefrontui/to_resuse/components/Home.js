@@ -100,7 +100,66 @@ const Products = () => {
   });
 
   // Render the MaterialReactTable component
-  return <MaterialReactTable table={table} />;
+  return (
+    <>
+      <section className="banner_area">
+        <div className="booking_table d_flex align-items-center">
+          <div
+            className="overlay bg-parallax"
+            data-stellar-ratio="0.9"
+            data-stellar-vertical-offset="0"
+            data-background=""></div>
+          <div className="container">
+            <div className="banner_content text-center">
+              <h6>Away from monotonous life</h6>
+              <h2>Relax Your Mind</h2>
+              <p>
+                If you are looking at blank cassettes on the web, you may be
+                very confused at the
+                <br /> difference in price. You may see some for as low as $.17
+                each.
+              </p>
+              <a href="#" className="btn theme_btn button_hover">
+                Get Started
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+         <section className="accomodation_area section_gap">
+            <div className="container">
+                <div className="section_title text-center">
+                    <h2 className="title_color">Hotel Accomodation</h2>
+                    <p>We all live in an age that belongs to the young at heart. Life that is becoming extremely fast, </p>
+          </div>
+          <div className="row mb_30">
+          {data.map((item) => {
+              <div className="col-lg-3 col-sm-6">
+                <div className="accomodation_item text-center">
+                  <div className="hotel_img">
+                    <img src="image/room1.jpg" alt="" />
+                    <a href="#" className="btn theme_btn button_hover">
+                      Book Now
+                    </a>
+                  </div>
+                  <a href="#">
+                    <h4 className="sec_h4">{item.title}</h4>
+                  </a>
+                  <h5>
+                    $250<small>/night</small>
+                  </h5>
+                </div>
+              </div>;
+            
+          })}
+                         </div>
+            </div>
+        </section>
+      <MaterialReactTable table={table} />;
+    </>
+  ); 
 };
 
 export default Products;
