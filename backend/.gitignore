@@ -1,0 +1,10 @@
+*.pyc 
+.vscode
+Pipfile
+Pipfile.lock
+media/*
+.pytest_cache
+__pycache__
+.env
+/static/
+general.log
