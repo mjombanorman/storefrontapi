@@ -1,0 +1,47 @@
+/store/	rest_framework.routers.APIRootView	api-root
+/store/	rest_framework.routers.APIRootView	api-root
+/store/	rest_framework.routers.APIRootView	api-root
+/store/\.<format>/	rest_framework.routers.APIRootView	api-root
+/store/\.<format>/	rest_framework.routers.APIRootView	api-root
+/store/\.<format>/	rest_framework.routers.APIRootView	api-root
+
+/store/carts/	store.views.CartViewSet	cart-list
+/store/carts/<cart_pk>/items/	store.views.CartItemViewSet	cart-items-list
+/store/carts/<cart_pk>/items/<pk>/	store.views.CartItemViewSet	cart-items-detail
+/store/carts/<cart_pk>/items/<pk>\.<format>/	store.views.CartItemViewSet	cart-items-detail
+/store/carts/<cart_pk>/items\.<format>/	store.views.CartItemViewSet	cart-items-list
+/store/carts/<pk>/	store.views.CartViewSet	cart-detail
+/store/carts/<pk>\.<format>/	store.views.CartViewSet	cart-detail
+/store/carts\.<format>/	store.views.CartViewSet	cart-list
+
+/store/collections/	store.views.CollectionViewSet	collection-list
+/store/collections/<pk>/	store.views.CollectionViewSet	collection-detail
+/store/collections/<pk>\.<format>/	store.views.CollectionViewSet	collection-detail
+/store/collections\.<format>/	store.views.CollectionViewSet	collection-list
+
+/store/customers/	store.views.CustomerViewSet	customer-list
+/store/customers/<pk>/	store.views.CustomerViewSet	customer-detail
+/store/customers/<pk>/historty/	store.views.CustomerViewSet	customer-historty
+/store/customers/<pk>/historty\.<format>/	store.views.CustomerViewSet	customer-historty
+/store/customers/<pk>\.<format>/	store.views.CustomerViewSet	customer-detail
+/store/customers/me/	store.views.CustomerViewSet	customer-me
+/store/customers/me\.<format>/	store.views.CustomerViewSet	customer-me
+/store/customers\.<format>/	store.views.CustomerViewSet	customer-list
+
+/store/orders/	store.views.OrderViewSet	orders-detail-list
+/store/orders/<pk>/	store.views.OrderViewSet	orders-detail-detail
+/store/orders/<pk>\.<format>/	store.views.OrderViewSet	orders-detail-detail
+/store/orders\.<format>/	store.views.OrderViewSet	orders-detail-list
+
+/store/products/	store.views.ProductViewSet	products-list
+/store/products/<pk>/	store.views.ProductViewSet	products-detail
+/store/products/<pk>\.<format>/	store.views.ProductViewSet	products-detail
+/store/products/<product_pk>/images/	store.views.ProductImageViewSet	product-images-list
+/store/products/<product_pk>/images/<pk>/	store.views.ProductImageViewSet	product-images-detail
+/store/products/<product_pk>/images/<pk>\.<format>/	store.views.ProductImageViewSet	product-images-detail
+/store/products/<product_pk>/images\.<format>/	store.views.ProductImageViewSet	product-images-list
+/store/products/<product_pk>/reviews/	store.views.ReviewViewSet	product-reviews-list
+/store/products/<product_pk>/reviews/<pk>/	store.views.ReviewViewSet	product-reviews-detail
+/store/products/<product_pk>/reviews/<pk>\.<format>/	store.views.ReviewViewSet	product-reviews-detail
+/store/products/<product_pk>/reviews\.<format>/	store.views.ReviewViewSet	product-reviews-list
+/store/products\.<format>/	store.views.ProductViewSet	products-list

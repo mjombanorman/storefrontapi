@@ -50,7 +50,6 @@
 //     }
 //   };
 
-
 //   //Fucntion to update product quantity by getting the input form value on chnage the setting it quanity in patch request
 //   const updateQty = (id) => {
 //     try {
@@ -139,6 +138,7 @@
 
 import React, { useEffect, useState } from "react";
 import api from "../helpers/Gateway";
+import Checkout from "./CheckOut";
 
 function AllProducts() {
   // State variables
@@ -149,6 +149,7 @@ function AllProducts() {
   });
   const [cartItems, setCartItems] = useState([]);
   const [cartTotal, setCartTotal] = useState(0);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   // Add item to the cart function
   const addToCart = async (id) => {
@@ -238,7 +239,7 @@ function AllProducts() {
     } catch (error) {
       console.error("Error removing item from cart:", error);
     }
-  }
+  };
 
   // Fetch products function
   const fetchProducts = async () => {
@@ -250,6 +251,10 @@ function AllProducts() {
     }
   };
 
+  // Function to toggle checkout mode
+  const toggleCheckout = () => {
+    setIsCheckingOut((prev) => !prev);
+  };
   // Load products on component mount
   useEffect(() => {
     fetchProducts();
@@ -278,39 +283,49 @@ function AllProducts() {
   }, [cartId]);
 
   // JSX
+
   return (
     <>
-      <ul>
-        {cartItems.length > 0 ? (
-          cartItems.map((item) => (
-            <li key={item.id}>
-              Product: {item.product.title} :::: Subtotal: $
-              {(item.product.unit_price * item.quantity).toFixed(2)} :::: QTY:
-              <input
-                type="number"
-                name="quantity"
-                value={item.quantity}
-                onChange={updateQty(item.id)}
-              />
-              <button onClick={removeFromCart(item.id)}>Remove from Cart</button>
-            </li>
-          ))
-        ) : (
-          <p>Loading cart...</p>
-        )}
-      </ul>
-      Total: ${cartTotal.toFixed(2)}
-      <hr />
-      <ul>
-        {items.map((item) => (
-          <li key={item.id}>
-            {item.title}
-            <button onClick={() => addToCart(item.id)}>Add to Cart</button>
-          </li>
-        ))}
-      </ul>
+      {isCheckingOut ? (
+        // Render the Checkout component if isCheckingOut is true
+        <Checkout cartItems={cartItems} cartTotal={cartTotal} cartID={cartId} />
+      ) : (
+        // Render the product list and cart summary
+        <>
+          <ul>
+            {cartItems.map((item) => (
+              <li key={item.id}>
+                Product: {item.product.title} :::: Subtotal: $
+                {(item.product.unit_price * item.quantity).toFixed(2)} :::: QTY:
+                <input
+                  type="number"
+                  name="quantity"
+                  value={item.quantity}
+                  onChange={updateQty(item.id)}
+                />
+                <button onClick={() => removeFromCart(item.id)}>
+                  Remove from Cart
+                </button>
+              </li>
+            ))}
+          </ul>
+          Total: ${cartTotal.toFixed(2)}
+          <hr />
+          <ul>
+            {items.map((item) => (
+              <li key={item.id}>
+                {item.title}
+                <button onClick={() => addToCart(item.id)}>Add to Cart</button>
+              </li>
+            ))}
+          </ul>
+          <button onClick={toggleCheckout}>Checkout</button>
+        </>
+      )}
     </>
   );
+
+ 
 }
 
 export default AllProducts;
