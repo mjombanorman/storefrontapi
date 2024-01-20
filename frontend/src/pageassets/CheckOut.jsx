@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import api from "../helpers/Gateway";
 
-const Checkout = ({ cartItems, cartTotal,cartID }) => {
+const Checkout = ({ cartItems, cartTotal,cartId }) => {
   const [shippingInfo, setShippingInfo] = useState({
     name: "",
     address: "",
@@ -18,23 +18,25 @@ const Checkout = ({ cartItems, cartTotal,cartID }) => {
   const handleCheckout = async () => {
     try {
       // Create an order with the selected items and shipping information
-      const orderResponse = await api.post("/store/orders/", {
-          items: cartItems.map((item) => ({
-            // 'product','quantity','unit_price'
-          product_id: item.product.id,
-          unit_price:item.product.unit_price,
-          quantity: item.quantity,
-        })),
-        shipping_info: shippingInfo,
+      const orderResponse = await api.post(`/store/orders/`, {
+        //   items: cartItems.map((item) => ({
+        //   product_id: item.product.id,
+        //   unit_price:item.product.unit_price,
+        //   quantity: item.quantity,
+        // })),
+        // shipping_info: shippingInfo,
+        cart_id: cartId,
       });
 
       // Handle the order response as needed (e.g., show confirmation message)
       console.log("Order placed successfully:", orderResponse.data);
+      // Remove cartId from localStorage
+      localStorage.removeItem("cartId");
 
-        // //Delete the cart object and return to homepage
-        // const deleteCart = api.delete(`/store/carts/${cartID}/`);
-        
-        // console.log("Cart Deleted")
+      // //Delete the cart object and return to homepage
+      // const deleteCart = api.delete(`/store/carts/${cartID}/`);
+
+      // console.log("Cart Deleted")
       // Clear the cart
       // Redirect to a thank you page
     } catch (error) {

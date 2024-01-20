@@ -151,30 +151,48 @@ function AllProducts() {
   const [cartTotal, setCartTotal] = useState(0);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
 
-  // Add item to the cart function
+  //  Add item to the cart function
   const addToCart = async (id) => {
     try {
       if (!cartId) {
         // If cartId doesn't exist, create a new cart
         const createCartResponse = await api.post("/store/carts/");
-        setCartId(createCartResponse.data.id);
-        localStorage.setItem(
-          "cartId",
-          JSON.stringify(createCartResponse.data.id)
-        );
+        const newCartId = createCartResponse.data.id;
+        await api.post(`/store/carts/${newCartId}/items/`,{product_id:id,quantity:1});
+
+        // Fetch the updated cart items for the new cart
+        const newCartData = await api.get(`/store/carts/${newCartId}/`);
+        setCartItems(newCartData.data.items);
+
+        setCartId(newCartId);
+        localStorage.setItem("cartId", JSON.stringify(newCartId));
+      } else {
+        // Fetch current cart data
+        const cartData = await api.get(`/store/carts/${cartId}/`);
+        setCartItems(cartData.data.items);
       }
 
-      // Fetch current cart data
-      const cartData = await api.get(`/store/carts/${cartId}/`);
-      setCartItems(cartData.data.items);
+      // Check if the item is already in the cart
+      const existingCartItem = cartItems.find((item) => item.product.id === id);
 
-      // Add item to the cart
-      const postItemResponse = await api.post(`/store/carts/${cartId}/items/`, {
-        product_id: id,
-        quantity: 1,
-      });
-
-      console.log("Item added to cart:", postItemResponse.data);
+      if (existingCartItem) {
+        // If the item is already in the cart, update its quantity
+        const updatedItemResponse = await api.patch(
+          `/store/carts/${cartId}/items/${existingCartItem.id}/`,
+          { quantity: existingCartItem.quantity + 1 }
+        );
+        console.log("Item quantity updated:", updatedItemResponse.data);
+      } else {
+        // If the item is not in the cart, add it
+        const postItemResponse = await api.post(
+          `/store/carts/${cartId}/items/`,
+          {
+            product_id: id,
+            quantity: 1,
+          }
+        );
+        console.log("Item added to cart:", postItemResponse.data);
+      }
 
       // Fetch updated cart items and update state
       const updatedCartItems = await api.get(`/store/carts/${cartId}/items/`);
@@ -190,6 +208,98 @@ function AllProducts() {
       console.error("Error adding item to cart:", error);
     }
   };
+
+  // const addToCart = async (id) => {
+  //   try {
+  //     if (!cartId) {
+  //       // If cartId doesn't exist, create a new cart
+  //       const createCartResponse = await api.post("/store/carts/");
+  //       setCartId(createCartResponse.data.id);
+  //       localStorage.setItem(
+  //         "cartId",
+  //         JSON.stringify(createCartResponse.data.id)
+  //       );
+  //     }
+
+  //     // Fetch current cart data
+  //     const cartData = await api.get(`/store/carts/${cartId}/`);
+  //     setCartItems(cartData.data.items);
+
+  //     // Check if the item is already in the cart
+  //     const existingCartItem = cartItems.find((item) => item.product.id === id);
+
+  //     if (existingCartItem) {
+  //       // If the item is already in the cart, update its quantity
+  //       const updatedItemResponse = await api.patch(
+  //         `/store/carts/${cartId}/items/${existingCartItem.id}/`,
+  //         { quantity: existingCartItem.quantity + 1 }
+  //       );
+  //       console.log("Item quantity updated:", updatedItemResponse.data);
+  //     } else {
+  //       // If the item is not in the cart, add it
+  //       const postItemResponse = await api.post(
+  //         `/store/carts/${cartId}/items/`,
+  //         {
+  //           product_id: id,
+  //           quantity: 1,
+  //         }
+  //       );
+  //       console.log("Item added to cart:", postItemResponse.data);
+  //     }
+
+  //     // Fetch updated cart items and update state
+  //     const updatedCartItems = await api.get(`/store/carts/${cartId}/items/`);
+  //     setCartItems(updatedCartItems.data);
+
+  //     // Calculate and update cart total
+  //     const newTotalValue = updatedCartItems.data.reduce(
+  //       (total, item) => total + item.product.unit_price * item.quantity,
+  //       0
+  //     );
+  //     setCartTotal(newTotalValue);
+  //   } catch (error) {
+  //     console.error("Error adding item to cart:", error);
+  //   }
+  // };
+
+  // const addToCart = async (id) => {
+  //   try {
+  //     if (!cartId) {
+  //       // If cartId doesn't exist, create a new cart
+  //       const createCartResponse = await api.post("/store/carts/");
+  //       setCartId(createCartResponse.data.id);
+  //       localStorage.setItem(
+  //         "cartId",
+  //         JSON.stringify(createCartResponse.data.id)
+  //       );
+  //     }
+
+  //     // Add item to the cart
+  //     const postItemResponse = await api.post(`/store/carts/${cartId}/items/`, {
+  //       product_id: id,
+  //       quantity: 1,
+  //     });
+
+  //     // Fetch current cart data
+  //     const cartData = await api.get(`/store/carts/${cartId}/`);
+  //     setCartItems(cartData.data.items);
+
+  //     console.log("Item added to cart:", postItemResponse.data);
+
+  //     // Fetch updated cart items and update state
+  //     const updatedCartItems = await api.get(`/store/carts/${cartId}/items/`);
+  //     setCartItems(updatedCartItems.data);
+
+  //     // Calculate and update cart total
+  //     const newTotalValue = updatedCartItems.data.reduce(
+  //       (total, item) => total + item.product.unit_price * item.quantity,
+  //       0
+  //     );
+  //     setCartTotal(newTotalValue);
+  //   } catch (error) {
+  //     console.error("Error adding item to cart:", error);
+  //   }
+  // };
 
   // Update quantity function
   const updateQty = (id) => async (event) => {
@@ -288,7 +398,7 @@ function AllProducts() {
     <>
       {isCheckingOut ? (
         // Render the Checkout component if isCheckingOut is true
-        <Checkout cartItems={cartItems} cartTotal={cartTotal} cartID={cartId} />
+        <Checkout cartItems={cartItems} cartTotal={cartTotal} cartId={cartId} />
       ) : (
         // Render the product list and cart summary
         <>
