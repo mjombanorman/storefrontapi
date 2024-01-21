@@ -1,14 +1,28 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import AddressForm from "./checkout/AddressForm";
+import PaymentForm from "./checkout/PaymentForm";
+import Review from "./checkout/Review";
+import { Button, Stepper, Step, StepLabel } from "@mui/material";
 import api from "../helpers/Gateway";
 
-const Checkout = ({ cartItems, cartTotal,cartId }) => {
+const steps = ["Shipping Address", "Payment Details", "Review Your Order"];
+
+const Checkout = ({ cartItems, cartTotal, cartId,updateQty,removeFromCart }) => {
+  const [activeStep, setActiveStep] = useState(0);
   const [shippingInfo, setShippingInfo] = useState({
     name: "",
     address: "",
     // Add other shipping information fields as needed
   });
 
-  
+  const handleNext = () => {
+    setActiveStep((prev) => prev + 1);
+  };
+
+  const handleBack = () => {
+    setActiveStep((prev) => prev - 1);
+  };
+
   const handleInputChange = (e) => {
     setShippingInfo({
       ...shippingInfo,
@@ -16,71 +30,86 @@ const Checkout = ({ cartItems, cartTotal,cartId }) => {
     });
   };
 
-  const handleCheckout = async () => {
-    try {
-      // Create an order with the selected items and shipping information
-      const orderResponse = await api.post(`/store/orders/`, {
-              cart_id: cartId,
-      });
 
-      // Handle the order response as needed (e.g., show confirmation message)
-      console.log("Order placed successfully:", orderResponse.data);
-      api.delete(`/store/carts/${cartID}/`);
-      console.log("Cart Deleted")
-      // Remove cartId from localStorage
-      localStorage.removeItem("cartId");
-      // Redirect to the home page
 
-      window.location.href = "/";
-    } catch (error) {
-      console.error("Error placing order:", error);
-      // Handle error, show error message, etc.
+
+  function cleanupCart(cartId) {
+  api.delete(`/store/carts/${cartId}/`);
+  localStorage.removeItem("cartId");
+}
+
+// later in handleCheckout
+
+
+    const handleCheckout = async () => {
+      try {
+        // Create an order with the selected items and shipping information
+        const orderResponse = await api.post(`/store/orders/`, {
+                cart_id: cartId,
+        });
+        console.log("Order placed successfully:", orderResponse.data);
+        await cleanupCart(cartId);
+        window.location.href = "/";
+
+        // Handle the order response as needed (e.g., show confirmation message)
+       
+        // api.delete(`/store/carts/${cartID}/`);
+        console.log("Cart Deleted")
+        console.log("Local Storage Removed");
+        // Remove cartId from localStorage
+        // localStorage.removeItem("cartId");
+        // Redirect to the home page
+
+        // window.location.href = "/";
+      } catch (error) {
+        console.error("Error placing order:", error);
+        // Handle error, show error message, etc.
+      }
+    };
+  const getStepContent = (step) => {
+    switch (step) {
+      case 0:
+        return <AddressForm handleNext={handleNext} />;
+      case 1:
+        return <PaymentForm handleNext={handleNext} />;
+      case 2:
+        return (
+          <Review
+            cartItems={cartItems}
+            cartTotal={cartTotal}
+            handleCheckout={handleCheckout}
+            updateQty={updateQty}
+            removeFromCart={removeFromCart}
+          />
+        );
+      default:
+        return "Unknown step";
     }
   };
 
   return (
     <div>
-      <h2>Checkout</h2>
-
+      <Stepper activeStep={activeStep} alternativeLabel>
+        {steps.map((label) => (
+          <Step key={label}>
+            <StepLabel>{label}</StepLabel>
+          </Step>
+        ))}
+      </Stepper>
       <div>
-        <h3>Selected Items</h3>
-        <ul>
-          {cartItems.map((item) => (
-            <li key={item.id}>
-              {item.product.title} - Qty: {item.quantity}
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div>
-        <h3>Shipping Information</h3>
-        <form>
-          <label>
-            Name:
-            <input
-              type="text"
-              name="name"
-              value={shippingInfo.name}
-              onChange={handleInputChange}
-            />
-          </label>
-          <label>
-            Address:
-            <input
-              type="text"
-              name="address"
-              value={shippingInfo.address}
-              onChange={handleInputChange}
-            />
-          </label>
-          {/* Add other shipping information fields here */}
-        </form>
-      </div>
-
-      <div>
-        <h3>Total: ${cartTotal.toFixed(2)}</h3>
-        <button onClick={handleCheckout}>Place Order</button>
+        {getStepContent(activeStep)}
+        <div>
+          {activeStep !== 0 && (
+            <Button onClick={handleBack} color="primary">
+              Back
+            </Button>
+          )}
+          {activeStep < steps.length - 1 && (
+            <Button onClick={handleNext} color="primary">
+              Next
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );
