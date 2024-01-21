@@ -8,6 +8,7 @@ const Checkout = ({ cartItems, cartTotal,cartId }) => {
     // Add other shipping information fields as needed
   });
 
+  
   const handleInputChange = (e) => {
     setShippingInfo({
       ...shippingInfo,
@@ -19,26 +20,18 @@ const Checkout = ({ cartItems, cartTotal,cartId }) => {
     try {
       // Create an order with the selected items and shipping information
       const orderResponse = await api.post(`/store/orders/`, {
-        //   items: cartItems.map((item) => ({
-        //   product_id: item.product.id,
-        //   unit_price:item.product.unit_price,
-        //   quantity: item.quantity,
-        // })),
-        // shipping_info: shippingInfo,
-        cart_id: cartId,
+              cart_id: cartId,
       });
 
       // Handle the order response as needed (e.g., show confirmation message)
       console.log("Order placed successfully:", orderResponse.data);
+      api.delete(`/store/carts/${cartID}/`);
+      console.log("Cart Deleted")
       // Remove cartId from localStorage
       localStorage.removeItem("cartId");
+      // Redirect to the home page
 
-      // //Delete the cart object and return to homepage
-      // const deleteCart = api.delete(`/store/carts/${cartID}/`);
-
-      // console.log("Cart Deleted")
-      // Clear the cart
-      // Redirect to a thank you page
+      window.location.href = "/";
     } catch (error) {
       console.error("Error placing order:", error);
       // Handle error, show error message, etc.
