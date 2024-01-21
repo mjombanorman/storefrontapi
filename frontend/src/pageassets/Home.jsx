@@ -13,11 +13,18 @@ import React, { useEffect, useState } from "react";
 import api from "../helpers/Gateway";
 import Checkout from "./CheckOut";
 import Grid from "@mui/material/Grid";
+import Pagination from "@mui/material/Pagination";
+import Stack from "@mui/material/Stack";
+import ReadMoreIcon from "@mui/icons-material/ReadMore";
+import { IconButton } from "@mui/material";
 
 
 export default function Home() {
   // State variables
   const [items, setItems] = useState([]); // Products from the API
+  // State to indicate refetching state
+    const [pagination, setPagination] = useState({ pageIndex: 1, pageSize: 12 });
+      const [rowCount, setRowCount] = useState(0);
   const [cartId, setCartId] = useState(() => {
     const storedCartId = localStorage.getItem("cartId");
     return storedCartId ? JSON.parse(storedCartId) : null;
@@ -25,12 +32,25 @@ export default function Home() {
   const [cartItems, setCartItems] = useState([]); // Items in the cart
   const [cartTotal, setCartTotal] = useState(0); // Total cart value
   const [isCheckingOut, setIsCheckingOut] = useState(false); // Checkout mode
+  // Handle page change
+  // Function to handle page changes
+  const handleChange = (event, newPage) => {
+    setPagination({ ...pagination, pageIndex: newPage });
+  };
 
   // Fetch products function
   const fetchProducts = async () => {
     try {
-      const response = await api.get("/store/products/");
-      setItems(response.data.results);
+        //   const response = await api.get("/store/products/");
+          const response = await api.get("store/products/", {
+            params: {
+              page: pagination.pageIndex,
+              page_size: pagination.pageSize,
+            },
+          });
+      console.log(response);
+        setItems(response.data.results);
+         setRowCount(response.data.count);
     } catch (error) {
       console.error("Error fetching products:", error);
     }
@@ -44,7 +64,7 @@ export default function Home() {
   // Load products on component mount
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [pagination.pageIndex, pagination.pageSize]);
 
   // Preload cart data if cartId exists
   useEffect(() => {
@@ -89,66 +109,55 @@ export default function Home() {
     }
   };
 
-    // Update quantity function
-    const updateQty = (id, quantity) => {
-      // Convert quantity to a number and check if it's a valid number
-      const parsedQuantity = parseInt(quantity, 10);
-      if (isNaN(parsedQuantity) || parsedQuantity <= 0) {
-        // Handle the case where the quantity is not a valid positive number
-        console.error("Invalid quantity:", quantity);
-        return;
-      }
+  // Update quantity function
+  const updateQty = (id, quantity) => {
+    // Convert quantity to a number and check if it's a valid number
+    const parsedQuantity = parseInt(quantity, 10);
+    if (isNaN(parsedQuantity) || parsedQuantity <= 0) {
+      // Handle the case where the quantity is not a valid positive number
+      console.error("Invalid quantity:", quantity);
+      return;
+    }
 
-      // Find the item in cartItems by id and update its quantity
-      const updatedCartItems = cartItems.map((item) =>
-        item.id === id ? { ...item, quantity: parsedQuantity } : item
-      );
+    // Find the item in cartItems by id and update its quantity
+    const updatedCartItems = cartItems.map((item) =>
+      item.id === id ? { ...item, quantity: parsedQuantity } : item
+    );
 
-      // Update the cartItems state with the updated items
+    // Update the cartItems state with the updated items
+    setCartItems(updatedCartItems);
+
+    // Calculate and update the total
+    const updatedTotal = calculateCartTotal(updatedCartItems);
+    setCartTotal(updatedTotal);
+
+    // Update the quantity in the API
+    api.patch(`/store/carts/${cartId}/items/${id}/`, {
+      quantity: parsedQuantity,
+    });
+  };
+
+  // Remove product from the cart
+  const removeFromCart = (id) => {
+    try {
+      // Make an API request to remove the item from the cart
+      api.delete(`/store/carts/${cartId}/items/${id}/`);
+
+      // Update the local state to reflect the removal
+      const updatedCartItems = cartItems.filter((item) => item.id !== id);
       setCartItems(updatedCartItems);
 
-      // Calculate and update the total
+      // Recalculate and update the total
       const updatedTotal = calculateCartTotal(updatedCartItems);
       setCartTotal(updatedTotal);
-
-      // Update the quantity in the API
-      api.patch(`/store/carts/${cartId}/items/${id}/`, {
-        quantity: parsedQuantity,
-      });
-    };
-
-
-    // Remove product from the cart
-    const removeFromCart = (id) => {
-      try {
-        // Make an API request to remove the item from the cart
-        api.delete(`/store/carts/${cartId}/items/${id}/`);
-
-        // Update the local state to reflect the removal
-        const updatedCartItems = cartItems.filter((item) => item.id !== id);
-        setCartItems(updatedCartItems);
-
-        // Recalculate and update the total
-        const updatedTotal = calculateCartTotal(updatedCartItems);
-        setCartTotal(updatedTotal);
-      } catch (error) {
-        console.error("Error removing item from cart:", error);
-      }
-    };
-//   const removeFromCart = (id) => async () => {
-//     try {
-//       await api.delete(`/store/carts/${cartId}/items/${id}/`);
-//       const updatedCart = await api.get(`/store/carts/${cartId}/`);
-//       setCartItems(updatedCart.data.items);
-//       setCartTotal(calculateCartTotal(updatedCart.data.items));
-//     } catch (error) {
-//       console.error("Error removing item from cart:", error);
-//     }
-//   };
+    } catch (error) {
+      console.error("Error removing item from cart:", error);
+    }
+  };
 
   return (
     <>
-          <Navigation cartItems={cartItems} toggleCheckout={toggleCheckout} />
+      <Navigation cartItems={cartItems} toggleCheckout={toggleCheckout} />
       <Box
         sx={{
           position: "relative",
@@ -171,7 +180,6 @@ export default function Home() {
             background: "rgba(0, 0, 0, 0.5)",
           }}></Box>
         <Container maxWidth="md" zIndex="1">
-          {/* Your content goes here */}
           <Typography
             variant="h4"
             align="center"
@@ -186,7 +194,6 @@ export default function Home() {
             sx={{ color: "#ffffff" }}>
             This is some content with a background image and overlay.
           </Typography>
-          {/* Add more components as needed */}
         </Container>
       </Box>
       <Box
@@ -196,48 +203,88 @@ export default function Home() {
           alignItems: "center",
           justifyContent: "center",
         }}>
-              <Container fixed>
-                   <>
-                      {isCheckingOut ? (
-                          // Render the Checkout component if isCheckingOut is true
-                          <>
-                          <Checkout cartItems={cartItems} cartTotal={cartTotal} cartId={cartId} updateQty={updateQty} removeFromCart={removeFromCart} />
-                          
-                              </>
-                      ) : (
-                          <Grid
-                              container
-                              spacing={{ xs: 2, md: 3 }}
-                              columns={{ xs: 4, sm: 8, md: 12 }}>
-                              {items.map((product) => (
-                                  <Grid item xs={2} sm={4} md={4} key={product.id}>
-                                      <Card sx={{ margin: 1 }}>
-                                          <CardMedia
-                                              component="img"
-                                              alt={product.title}
-                                              height="340"
-                                              image={product.image}
-                                              title={product.title}
-                                          />
-                                          <CardContent>
-                                              <Typography gutterBottom variant="h6" component="div">
-                                                  {product.title}
-                                              </Typography>
-                                              <Typography variant="body2" color="text.secondary">
-                                                  {product.description}
-                                              </Typography>
-                                          </CardContent>
-                                          <CardActions>
-                                              <Button onClick={() => addToCart(product.id)} size="small">
-                                                  <AddShoppingCartIcon />
-                                              </Button>
-                                              <Button size="small">Learn More</Button>
-                                          </CardActions>
-                                      </Card>
-                                  </Grid>
-                              ))}
-                          </Grid>)}
-                      </>
+        <Container fixed>
+          <>
+            {isCheckingOut ? (
+              // Render the Checkout component if isCheckingOut is true
+              <>
+                <Checkout
+                  cartItems={cartItems}
+                  cartTotal={cartTotal}
+                  cartId={cartId}
+                  updateQty={updateQty}
+                  removeFromCart={removeFromCart}
+                />
+              </>
+            ) : (
+              <Grid
+                container
+                spacing={{ xs: 2, md: 3 }}
+                columns={{ xs: 4, sm: 8, md: 12 }}>
+                {items.map((product) => (
+                  <Grid
+                    sx={{ marginTop: "2%" }}
+                    item
+                    xs={2}
+                    sm={4}
+                    md={4}
+                    key={product.id}>
+                    <Card sx={{ margin: 1 }}>
+                      <CardMedia
+                        component="img"
+                        alt={product.title}
+                        height="300"
+                        image={product.image}
+                        title={product.title}
+                      />
+                      <CardContent>
+                        <Typography gutterBottom variant="h6" component="div">
+                          {product.title}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {product.description}
+                        </Typography>
+                      </CardContent>
+                      <CardActions
+                        sx={{
+                          flexGrow: 1,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}>
+                        <IconButton
+                          onClick={() => addToCart(product.id)}
+                          size="small">
+                          <AddShoppingCartIcon />
+                        </IconButton>
+                        <IconButton>
+                          <ReadMoreIcon />
+                        </IconButton>
+                      </CardActions>
+                    </Card>
+                  </Grid>
+                ))}
+                {/* Display pagination controls */}
+                <Stack
+                  sx={{
+                    flexGrow: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginTop: "2%",
+                    marginBottom: "2%",
+                  }}
+                  spacing={2}>
+                  <Typography>Page: {pagination.pageIndex}</Typography>
+                  <Pagination
+                    count={Math.ceil(rowCount / pagination.pageSize)}
+                    page={pagination.pageIndex}
+                    onChange={handleChange}
+                  />
+                </Stack>
+              </Grid>
+            )}
+          </>
         </Container>
       </Box>
     </>

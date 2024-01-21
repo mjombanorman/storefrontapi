@@ -11,8 +11,8 @@ With this technology stack, StoreFront delivers a seamless and feature-rich e-co
 ## Project Structure
 
 **storefront**
-**_backend_**
 
+**_backend_**
 - core
 - data
 - likes
@@ -22,8 +22,9 @@ With this technology stack, StoreFront delivers a seamless and feature-rich e-co
 - store
 - storefront
 - tag
-- templates
-  **_frontend_**
+- templates 
+
+ **_frontend_**
 - public
 - src
 - assets
