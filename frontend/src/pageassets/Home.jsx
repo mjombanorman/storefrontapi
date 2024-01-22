@@ -17,14 +17,24 @@ import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
 import ReadMoreIcon from "@mui/icons-material/ReadMore";
 import { IconButton } from "@mui/material";
-
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import Divider from "@mui/material/Divider";
+import InboxIcon from "@mui/icons-material/Inbox";
+import DraftsIcon from "@mui/icons-material/Drafts";
+import Chip from "@mui/material/Chip";
+import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 
 export default function Home() {
   // State variables
   const [items, setItems] = useState([]); // Products from the API
+  const [collections, setCollections] = useState([]);
   // State to indicate refetching state
-    const [pagination, setPagination] = useState({ pageIndex: 1, pageSize: 12 });
-      const [rowCount, setRowCount] = useState(0);
+  const [pagination, setPagination] = useState({ pageIndex: 1, pageSize: 12 });
+  const [rowCount, setRowCount] = useState(0);
   const [cartId, setCartId] = useState(() => {
     const storedCartId = localStorage.getItem("cartId");
     return storedCartId ? JSON.parse(storedCartId) : null;
@@ -41,21 +51,42 @@ export default function Home() {
   // Fetch products function
   const fetchProducts = async () => {
     try {
-        //   const response = await api.get("/store/products/");
-          const response = await api.get("store/products/", {
-            params: {
-              page: pagination.pageIndex,
-              page_size: pagination.pageSize,
-            },
-          });
-      console.log(response);
-        setItems(response.data.results);
-         setRowCount(response.data.count);
+      //   const response = await api.get("/store/products/");
+      const productResponse = await api.get("store/products/", {
+        params: {
+          page: pagination.pageIndex,
+          page_size: pagination.pageSize,
+        },
+      });
+      setItems(productResponse.data.results);
+      const collectionResponse = await api.get("/store/collections/");
+      setCollections(collectionResponse.data);
+
+      setRowCount(productResponse.data.count);
     } catch (error) {
       console.error("Error fetching products:", error);
     }
   };
-
+  // Map products to their respective collection names
+  const productsWithCollectionName = items.map((item) => {
+    const collection = collections.find(
+      (collection) => collection.id === item.collection
+    );
+    return {
+      ...item,
+      collectionName: collection ? collection.title : "Unknown Collection",
+    };
+  });
+  //Fetch Collections
+  const fetchCollections = async () => {
+    try {
+      const response = await api.get("/store/collections/");
+      console.log(response);
+      setCollections(response.data);
+    } catch (error) {
+      console.error("Error fetching collections:", error);
+    }
+  };
   // Function to toggle checkout mode
   const toggleCheckout = () => {
     setIsCheckingOut((prev) => !prev);
@@ -64,6 +95,7 @@ export default function Home() {
   // Load products on component mount
   useEffect(() => {
     fetchProducts();
+    fetchCollections();
   }, [pagination.pageIndex, pagination.pageSize]);
 
   // Preload cart data if cartId exists
@@ -158,6 +190,7 @@ export default function Home() {
   return (
     <>
       <Navigation cartItems={cartItems} toggleCheckout={toggleCheckout} />
+
       <Box
         sx={{
           position: "relative",
@@ -196,96 +229,136 @@ export default function Home() {
           </Typography>
         </Container>
       </Box>
-      <Box
-        sx={{
-          flexGrow: 1,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}>
-        <Container fixed>
-          <>
-            {isCheckingOut ? (
-              // Render the Checkout component if isCheckingOut is true
-              <>
-                <Checkout
-                  cartItems={cartItems}
-                  cartTotal={cartTotal}
-                  cartId={cartId}
-                  updateQty={updateQty}
-                  removeFromCart={removeFromCart}
-                />
-              </>
-            ) : (
-              <Grid
-                container
-                spacing={{ xs: 2, md: 3 }}
-                columns={{ xs: 4, sm: 8, md: 12 }}>
-                {items.map((product) => (
-                  <Grid
-                    sx={{ marginTop: "2%" }}
-                    item
-                    xs={2}
-                    sm={4}
-                    md={4}
-                    key={product.id}>
-                    <Card sx={{ margin: 1 }}>
-                      <CardMedia
-                        component="img"
-                        alt={product.title}
-                        height="300"
-                        image={product.image}
-                        title={product.title}
+      <Box sx={{ flexGrow: 1, marginTop: "4%" }}>
+        <Grid container spacing={2}>
+          <Grid xs={4}>
+            <Box
+              sx={{
+                width: "100%",
+                maxWidth: 300,
+                bgcolor: "background.paper",
+                marginLeft:"4%"
+              }}>
+              <nav>
+                <List>
+                  {collections.map((collection) => (
+                    <ListItem key={collection.id}>
+                      <Button variant="outlined">
+                 
+                        {collection.title} - {collection.products_count}
+                      </Button>
+                    </ListItem>
+                  ))}
+                </List>
+              </nav>
+            </Box>
+          </Grid>
+          <Grid xs={8}>
+            <Box
+              sx={{
+                flexGrow: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}>
+              <Container fixed>
+                <>
+                  {isCheckingOut ? (
+                    // Render the Checkout component if isCheckingOut is true
+                    <>
+                      <Checkout
+                        cartItems={cartItems}
+                        cartTotal={cartTotal}
+                        cartId={cartId}
+                        updateQty={updateQty}
+                        removeFromCart={removeFromCart}
                       />
-                      <CardContent>
-                        <Typography gutterBottom variant="h6" component="div">
-                          {product.title}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {product.description}
-                        </Typography>
-                      </CardContent>
-                      <CardActions
+                    </>
+                  ) : (
+                    <Grid
+                      container
+                      spacing={{ xs: 2, md: 3 }}
+                      columns={{ xs: 4, sm: 8, md: 12 }}>
+                      {productsWithCollectionName.map((product) => (
+                        <Grid
+                          sx={{ marginTop: "2%" }}
+                          item
+                          xs={2}
+                          sm={3}
+                          md={3}
+                          key={product.id}>
+                          <Card sx={{ margin: 1 }}>
+                            <CardMedia
+                              component="img"
+                              alt={product.title}
+                              height="300"
+                              image={product.image}
+                              title={product.title}
+                            />
+                            <CardContent>
+                              <Typography
+                                gutterBottom
+                                variant="h6"
+                                component="div">
+                                {product.title}
+                              </Typography>
+                              <Typography
+                                variant="body2"
+                                color="text.secondary">
+                                {product.description}
+                                <br />
+                                <Chip
+                                  icon={<LocalOfferIcon />}
+                                  label={product.collectionName}
+                                  color="warning"
+                                  variant="outlined"
+                                />
+                              </Typography>
+                            </CardContent>
+                            <CardActions
+                              sx={{
+                                flexGrow: 1,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                              }}>
+                              <IconButton
+                                onClick={() => addToCart(product.id)}
+                                size="small">
+                                <AddShoppingCartIcon />
+                              </IconButton>
+                              <IconButton>
+                                <ReadMoreIcon />
+                              </IconButton>
+                            </CardActions>
+                          </Card>
+                        </Grid>
+                      ))}
+                      {/* Display pagination controls */}
+                      <Stack
                         sx={{
                           flexGrow: 1,
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
-                        }}>
-                        <IconButton
-                          onClick={() => addToCart(product.id)}
-                          size="small">
-                          <AddShoppingCartIcon />
-                        </IconButton>
-                        <IconButton>
-                          <ReadMoreIcon />
-                        </IconButton>
-                      </CardActions>
-                    </Card>
-                  </Grid>
-                ))}
-                {/* Display pagination controls */}
-                <Stack
-                  sx={{
-                    flexGrow: 1,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginTop: "2%",
-                    marginBottom: "2%",
-                  }}
-                  spacing={2}>
-                  <Typography>Page: {pagination.pageIndex}</Typography>
-                  <Pagination
-                    count={Math.ceil(rowCount / pagination.pageSize)}
-                    page={pagination.pageIndex}
-                    onChange={handleChange}
-                  />
-                </Stack>
-              </Grid>
-            )}
-          </>
-        </Container>
+                          marginTop: "2%",
+                          marginBottom: "2%",
+                        }}
+                        spacing={2}>
+                        <Typography>Page: {pagination.pageIndex}</Typography>
+                        <Pagination
+                          count={Math.ceil(rowCount / pagination.pageSize)}
+                          page={pagination.pageIndex}
+                          onChange={handleChange}
+                        />
+                      </Stack>
+                    </Grid>
+                  )}
+                </>
+              </Container>
+            </Box>
+          </Grid>
+        </Grid>
       </Box>
     </>
   );
