@@ -33,6 +33,7 @@ export default function Home() {
   const [items, setItems] = useState([]); // Products from the API
   const [collections, setCollections] = useState([]);
   const [selectedCollection, setSelectedCollection] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // State to indicate refetching state
   const [pagination, setPagination] = useState({ pageIndex: 1, pageSize: 12 });
@@ -49,26 +50,46 @@ export default function Home() {
   const handleChange = (event, newPage) => {
     setPagination({ ...pagination, pageIndex: newPage });
   };
+  //Search from the database
+  const handleSearch = async (event) => {
+    setSearchQuery(event.target.value);
+  };
 
   // Fetch products function
   const fetchProducts = async () => {
     try {
-      //   const response = await api.get("/store/products/");
       const productResponse = await api.get("store/products/", {
         params: {
           page: pagination.pageIndex,
           page_size: pagination.pageSize,
+          search: searchQuery,
         },
       });
       setItems(productResponse.data.results);
-      const collectionResponse = await api.get("/store/collections/");
-      setCollections(collectionResponse.data);
-
       setRowCount(productResponse.data.count);
     } catch (error) {
       console.error("Error fetching products:", error);
     }
   };
+
+  // const fetchProducts = async () => {
+  //   try {
+  //     //   const response = await api.get("/store/products/");
+  //     const productResponse = await api.get("store/products/", {
+  //       params: {
+  //         page: pagination.pageIndex,
+  //         page_size: pagination.pageSize,
+  //       },
+  //     });
+  //     setItems(productResponse.data.results);
+  //     const collectionResponse = await api.get("/store/collections/");
+  //     setCollections(collectionResponse.data);
+
+  //     setRowCount(productResponse.data.count);
+  //   } catch (error) {
+  //     console.error("Error fetching products:", error);
+  //   }
+  // };
   // Map products to their respective collection names
   const productsWithCollectionName = items.map((item) => {
     const collection = collections.find(
@@ -98,7 +119,7 @@ export default function Home() {
   useEffect(() => {
     fetchProducts();
     fetchCollections();
-  }, [pagination.pageIndex, pagination.pageSize]);
+  }, [searchQuery, pagination.pageIndex, pagination.pageSize]);
 
   // Preload cart data if cartId exists
   useEffect(() => {
@@ -172,24 +193,22 @@ export default function Home() {
   };
 
   // Filter products by collection
-const handleCollectionFilter = async (collectionId) => {
-  try {
-    const productResponse = await api.get("store/products/", {
-      params: {
-        collection_id: collectionId,
-        page: pagination.pageIndex,
-        page_size: pagination.pageSize,
-      },
-    });
-    setItems(productResponse.data.results);
-    setRowCount(productResponse.data.count);
-    setSelectedCollection(collectionId); // Set the selected collection
-  } catch (error) {
-    console.error("Error fetching filtered products:", error);
-  }
-};
-
-
+  const handleCollectionFilter = async (collectionId) => {
+    try {
+      const productResponse = await api.get("store/products/", {
+        params: {
+          collection_id: collectionId,
+          page: pagination.pageIndex,
+          page_size: pagination.pageSize,
+        },
+      });
+      setItems(productResponse.data.results);
+      setRowCount(productResponse.data.count);
+      setSelectedCollection(collectionId); // Set the selected collection
+    } catch (error) {
+      console.error("Error fetching filtered products:", error);
+    }
+  };
 
   // Remove product from the cart
   const removeFromCart = (id) => {
@@ -251,6 +270,14 @@ const handleCollectionFilter = async (collectionId) => {
           </Typography>
         </Container>
       </Box>
+
+      <input
+        type="text"
+        placeholder="Search products..."
+        name="search"
+        value={searchQuery}
+        onChange={handleSearch}
+      />
       <Box sx={{ flexGrow: 1, marginTop: "4%" }}>
         <Grid container spacing={2}>
           <Grid xs={4}>
@@ -267,7 +294,10 @@ const handleCollectionFilter = async (collectionId) => {
                     <ListItem key={collection.id}>
                       <Button
                         variant="outlined"
-                        onClick={() => handleCollectionFilter(collection.id)}
+                        onClick={() => {
+                          handleCollectionFilter(collection.id);
+                          setSearchQuery(""); // Clear the search query
+                        }}
                         sx={{
                           backgroundColor:
                             selectedCollection === collection.id
