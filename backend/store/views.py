@@ -25,6 +25,13 @@ class ProductViewSet(ModelViewSet):
     ordering_fields = ['unit_price', 'last_update']
     permission_classes = [IsAdminOrReadOnly]
 
+    def get_queryset(self):
+        collection = self.request.query_params.get('collection')
+        if collection:
+            return self.queryset.filter(collection_id=collection)
+        return self.queryset
+
+
     def get_serializer_context(self):
         return {'request': self.request}
 

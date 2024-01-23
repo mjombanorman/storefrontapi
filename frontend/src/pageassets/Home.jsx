@@ -32,6 +32,8 @@ export default function Home() {
   // State variables
   const [items, setItems] = useState([]); // Products from the API
   const [collections, setCollections] = useState([]);
+  const [selectedCollection, setSelectedCollection] = useState(null);
+
   // State to indicate refetching state
   const [pagination, setPagination] = useState({ pageIndex: 1, pageSize: 12 });
   const [rowCount, setRowCount] = useState(0);
@@ -169,6 +171,26 @@ export default function Home() {
     });
   };
 
+  // Filter products by collection
+const handleCollectionFilter = async (collectionId) => {
+  try {
+    const productResponse = await api.get("store/products/", {
+      params: {
+        collection_id: collectionId,
+        page: pagination.pageIndex,
+        page_size: pagination.pageSize,
+      },
+    });
+    setItems(productResponse.data.results);
+    setRowCount(productResponse.data.count);
+    setSelectedCollection(collectionId); // Set the selected collection
+  } catch (error) {
+    console.error("Error fetching filtered products:", error);
+  }
+};
+
+
+
   // Remove product from the cart
   const removeFromCart = (id) => {
     try {
@@ -237,14 +259,21 @@ export default function Home() {
                 width: "100%",
                 maxWidth: 300,
                 bgcolor: "background.paper",
-                marginLeft:"4%"
+                marginLeft: "4%",
               }}>
               <nav>
                 <List>
                   {collections.map((collection) => (
                     <ListItem key={collection.id}>
-                      <Button variant="outlined">
-                 
+                      <Button
+                        variant="outlined"
+                        onClick={() => handleCollectionFilter(collection.id)}
+                        sx={{
+                          backgroundColor:
+                            selectedCollection === collection.id
+                              ? "#aaffaa"
+                              : "inherit",
+                        }}>
                         {collection.title} - {collection.products_count}
                       </Button>
                     </ListItem>
