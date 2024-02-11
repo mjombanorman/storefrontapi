@@ -1,38 +1,34 @@
-import "./App.css";
-import AllProducts from "./pageassets/AllProducts";
-import Home from "./pageassets/Home";
-function App() {
+import React, { useState } from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import HomePage from "./pages/home/HomePage";
+
+const App = () => {
+  const [cartItems, setCartItems] = useState([]); // Initialize cartItems state
+  const [toggleCheckout, setToggleCheckout] = useState(false); // Initialize toggleCheckout state
 
   return (
     <>
-      {/* <AllProducts /> */}
-      <Home />
+      {/* <Header cartItems={cartItems} toggleCheckout={toggleCheckout} />{" "} */}
+      {/* Pass props to Header */}
+      {/* <Router>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <HomePage
+              // setCartItems={setCartItems}
+              // setToggleCheckout={setToggleCheckout}
+              />
+            }
+          />
+          {/* <Route path="/checkout" component={CheckOut} />
+          <Route path="/payment" component={PaymentForm} />
+          <Route path="/review" component={ReviewForm} /> */}
+        {/* </Routes>
+      </Router> */}
+      <HomePage /> 
     </>
   );
-}
+};
 
 export default App;
-// import React from "react";
-// import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-// import CheckOut from "./pageassets/CheckOut";
-// import PaymentForm from "./pageassets/checkout/PaymentForm";
-// import ReviewForm from "./pageassets/checkout/Review";
-// import Home from "./pageassets/Home";
-
-// const App = () => {
-//   return (
-//     <>
-//           <Router>
-    
-//         <Route path="/checkout" component={CheckOut} />
-//         <Route path="/payment" component={PaymentForm} />
-//         <Route path="/review" component={Review} />
-  
-//       </Router>
-//        <Home />
-//     </>
-
-//   );
-// };
-
-// export default App;

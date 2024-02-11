@@ -1,4 +1,3 @@
-
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
@@ -19,12 +18,7 @@ import ReadMoreIcon from "@mui/icons-material/ReadMore";
 import { IconButton } from "@mui/material";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import Divider from "@mui/material/Divider";
-import InboxIcon from "@mui/icons-material/Inbox";
-import DraftsIcon from "@mui/icons-material/Drafts";
+
 import Chip from "@mui/material/Chip";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import { styled, alpha } from "@mui/material/styles";
@@ -114,24 +108,6 @@ export default function Home() {
     }
   };
 
-  // const fetchProducts = async () => {
-  //   try {
-  //     //   const response = await api.get("/store/products/");
-  //     const productResponse = await api.get("store/products/", {
-  //       params: {
-  //         page: pagination.pageIndex,
-  //         page_size: pagination.pageSize,
-  //       },
-  //     });
-  //     setItems(productResponse.data.results);
-  //     const collectionResponse = await api.get("/store/collections/");
-  //     setCollections(collectionResponse.data);
-
-  //     setRowCount(productResponse.data.count);
-  //   } catch (error) {
-  //     console.error("Error fetching products:", error);
-  //   }
-  // };
   // Map products to their respective collection names
   const productsWithCollectionName = items.map((item) => {
     const collection = collections.find(
@@ -273,44 +249,8 @@ export default function Home() {
   return (
     <>
       <Navigation cartItems={cartItems} toggleCheckout={toggleCheckout} />
-      <Box
-        sx={{
-          position: "relative",
-          backgroundImage: `url("https://cdn.pixabay.com/photo/2017/03/01/09/11/shop-2107911_960_720.png")`,
-          pt: 10,
-          pb: 10,
-          height: "20vh",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          color: "#ffffff",
-          overflow: "hidden",
-        }}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            background: "rgba(0, 0, 0, 0.5)",
-          }}></Box>
-        <Container maxWidth="md" zIndex="1">
-          <Typography
-            variant="h4"
-            align="center"
-            gutterBottom
-            sx={{ color: "#ffffff", fontWeight: "bold" }}>
-            Welcome to My Website
-          </Typography>
-          <Typography
-            variant="body1"
-            align="center"
-            paragraph
-            sx={{ color: "#ffffff" }}>
-            This is some content with a background image and overlay.
-          </Typography>
-        </Container>
-      </Box>
+
+     
       <Box sx={{ display: "flex", alignItems: "flex-end" }}>
         <SearchIcon sx={{ color: "action.active", mr: 1, my: 0.5 }} />
         <TextField
@@ -322,13 +262,7 @@ export default function Home() {
           onChange={handleSearch}
         />
       </Box>
-      {/* <input
-        type="text"
-        placeholder="Search products..."
-        name="search"
-        value={searchQuery}
-        onChange={handleSearch}
-      /> */}
+
       <Box sx={{ flexGrow: 1, marginTop: "4%" }}>
         <Grid container spacing={2}>
           <Grid xs={4}>
