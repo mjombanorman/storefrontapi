@@ -1,5 +1,8 @@
 import React, { Component } from "react";
 import api from "../../helpers/Gateway";
+import ProductItem from "../../components/product-item/product-item.component";
+import Collection from "../../components/collections/collections.component";
+import SearchBar from "../../components/search/search.componet";
 
 class HomePage extends Component {
   constructor(props) {
@@ -9,7 +12,7 @@ class HomePage extends Component {
     this.state = {
       items: [], // Products from the API
       collections: [],
-         selectedCollection: null,
+      selectedCollection: null,
       searchQuery: "",
       pagination: { pageIndex: 1, pageSize: 12 },
       rowCount: 0,
@@ -23,6 +26,7 @@ class HomePage extends Component {
   }
 
   // Fetch products from the API
+  // Fetch products from the API
   fetchProducts = async () => {
     try {
       const { pagination, searchQuery } = this.state;
@@ -30,9 +34,10 @@ class HomePage extends Component {
         params: {
           page: pagination.pageIndex,
           page_size: pagination.pageSize,
-          search: searchQuery,
+          search: searchQuery, // Pass the searchQuery directly
         },
       });
+      console.log(productResponse);
       this.setState({
         items: productResponse.data.results,
         rowCount: productResponse.data.count,
@@ -41,7 +46,6 @@ class HomePage extends Component {
       console.error("Error fetching products:", error);
     }
   };
-
 
   // Fetch collections from the API
   fetchCollections = async () => {
@@ -89,11 +93,10 @@ class HomePage extends Component {
     );
   };
 
-  // Handle search query change
-  handleSearch = (event) => {
-    this.setState({ searchQuery: event.target.value });
+  // Update state and fetch products using searchQuery
+  handleSearch = (searchQuery) => {
+    this.setState({ searchQuery }, () => this.fetchProducts());
   };
-
   // Filter products by collection
   handleCollectionFilter = async (collectionId) => {
     try {
@@ -185,6 +188,7 @@ class HomePage extends Component {
     this.fetchCollections();
     this.preloadCart();
   }
+
   render() {
     const {
       collections,
@@ -206,61 +210,50 @@ class HomePage extends Component {
         collectionName: collection ? collection.title : "Unknown Collection",
       };
     });
+
     return (
       <>
-        {/* <Navigation cartItems={cartItems} toggleCheckout={this.toggleCheckout} /> */}
-
-        <input
-          id="input-with-sx"
-          label="Search..."
-          name="search"
-          value={searchQuery}
-          onChange={this.handleSearch}
-        />
-
-        {collections.map((collection) => (
-          <p key={collection.id}>
-            <button
-              onClick={() => {
-                this.handleCollectionFilter(collection.id);
-                this.setState({ searchQuery: "" }); // Clear the search query
-              }}>
-              {collection.title} - {collection.products_count}
-            </button>
-          </p>
-        ))}
-
-        {isCheckingOut ? (
-          // Render the Checkout component if isCheckingOut is true
-          <Checkout
-            cartItems={cartItems}
-            cartTotal={cartTotal}
-            updateQty={this.updateQty}
-            removeFromCart={this.removeFromCart}
+        <div className="container">
+          <SearchBar
+            handleSearch={this.handleSearch}
+            searchQuery={this.state.searchQuery}
           />
-        ) : (
-          <>
-            {productsWithCollectionName.map((product) => (
-              <div style={{ margin: "2%" }} key={product.id}>
-                <h1>{product.collectionName}</h1>
-                <h2>{product.title}</h2>
-                <p>{product.description}</p>
-                <img src={product.image} alt={product.title} />
-                <button onClick={() => this.addToCart(product.id)}>
-                  Add to Cart
-                </button>
-              </div>
-            ))}
-          </>
-        )}
+        </div>
 
-        <div>
-          {/* Pagination component */}
-          {/* <Pagination
-            count={Math.ceil(rowCount / pagination.pageSize)}
-            page={pagination.pageIndex}
-            onChange={this.handleChange}
-          /> */}
+        <div className="row">
+          <div className="col-2">
+            <ul>
+              {collections.map(({ id, ...otherProps }) => (
+                <Collection
+                  key={id}
+                  {...otherProps}
+                  handleCollectionFilter={() => this.handleCollectionFilter(id)}
+                />
+              ))}
+            </ul>
+          </div>
+          <div className="col-10">
+            <div className="container">
+              <div className="row justify-content-between">
+                {!isCheckingOut ? (
+                  productsWithCollectionName.map((product, index) => (
+                    <div key={index} className="col-lg-3 mb-3">
+                      {" "}
+                      {/* Added spacing with 'mb-4' class */}
+                      <ProductItem product={product} />
+                    </div>
+                  ))
+                ) : (
+                  <Checkout
+                    cartItems={cartItems}
+                    cartTotal={cartTotal}
+                    updateQty={this.updateQty}
+                    removeFromCart={this.removeFromCart}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </>
     );
@@ -268,3 +261,23 @@ class HomePage extends Component {
 }
 
 export default HomePage;
+
+{
+  /* //   <h1>{product.collectionName}</h1>
+                      //   <h2>{product.title}</h2>
+                      //   <p>{product.description}</p>
+                      //   <img src={product.image} alt={product.title} />
+                      //   <button onClick={() => this.addToCart(product.id)}>
+                      //     Add to Cart
+                      //   </button>
+                    */
+}
+
+{
+  /* Pagination component 
+          <Pagination
+            count={Math.ceil(rowCount / pagination.pageSize)}
+            page={pagination.pageIndex}
+            onChange={this.handleChange}
+          /> */
+}

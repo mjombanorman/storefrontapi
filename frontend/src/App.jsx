@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import HomePage from "./pages/home/HomePage";
+import ProductItem from "./components/product-item/product-item.component";
 
 const App = () => {
   const [cartItems, setCartItems] = useState([]); // Initialize cartItems state
@@ -24,9 +25,10 @@ const App = () => {
           {/* <Route path="/checkout" component={CheckOut} />
           <Route path="/payment" component={PaymentForm} />
           <Route path="/review" component={ReviewForm} /> */}
-        {/* </Routes>
+      {/* </Routes>
       </Router> */}
       <HomePage /> 
+      {/* <ProductItem /> */}
     </>
   );
 };
