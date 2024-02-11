@@ -3,6 +3,8 @@ import api from "../../helpers/Gateway";
 import ProductItem from "../../components/product-item/product-item.component";
 import Collection from "../../components/collections/collections.component";
 import SearchBar from "../../components/search/search.componet";
+import Paginate from "../../components/pagination/pagination.component";
+import { Container } from "react-bootstrap";
 
 class HomePage extends Component {
   constructor(props) {
@@ -212,17 +214,16 @@ class HomePage extends Component {
     });
 
     return (
-      <>
-        <div className="container">
-          <SearchBar
-            handleSearch={this.handleSearch}
-            searchQuery={this.state.searchQuery}
-          />
-        </div>
-
-        <div className="row">
+      <Container fluid>
+        <div className="row mt-5">
           <div className="col-2">
-            <ul>
+     
+              <SearchBar
+                handleSearch={this.handleSearch}
+                searchQuery={this.state.searchQuery}
+              />
+            
+
               {collections.map(({ id, ...otherProps }) => (
                 <Collection
                   key={id}
@@ -230,19 +231,21 @@ class HomePage extends Component {
                   handleCollectionFilter={() => this.handleCollectionFilter(id)}
                 />
               ))}
-            </ul>
+          
           </div>
           <div className="col-10">
             <div className="container">
               <div className="row justify-content-between">
                 {!isCheckingOut ? (
-                  productsWithCollectionName.map((product, index) => (
-                    <div key={index} className="col-lg-3 mb-3">
-                      {" "}
-                      {/* Added spacing with 'mb-4' class */}
-                      <ProductItem product={product} />
-                    </div>
-                  ))
+                  productsWithCollectionName.length !== 0 ? (
+                    productsWithCollectionName.map((product, index) => (
+                      <div key={index} className="col-lg-3 mb-3">
+                        <ProductItem product={product} addToCart={this.addToCart(product.id)} />
+                      </div>
+                    ))
+                  ) : (
+                    <p>No products found</p>
+                  )
                 ) : (
                   <Checkout
                     cartItems={cartItems}
@@ -251,33 +254,19 @@ class HomePage extends Component {
                     removeFromCart={this.removeFromCart}
                   />
                 )}
+
+                <Paginate
+                  rowCount={rowCount}
+                  pagination={pagination}
+                  handleChange={this.handleChange}
+                />
               </div>
             </div>
           </div>
         </div>
-      </>
+      </Container>
     );
   }
 }
 
 export default HomePage;
-
-{
-  /* //   <h1>{product.collectionName}</h1>
-                      //   <h2>{product.title}</h2>
-                      //   <p>{product.description}</p>
-                      //   <img src={product.image} alt={product.title} />
-                      //   <button onClick={() => this.addToCart(product.id)}>
-                      //     Add to Cart
-                      //   </button>
-                    */
-}
-
-{
-  /* Pagination component 
-          <Pagination
-            count={Math.ceil(rowCount / pagination.pageSize)}
-            page={pagination.pageIndex}
-            onChange={this.handleChange}
-          /> */
-}
