@@ -27,13 +27,55 @@ import InboxIcon from "@mui/icons-material/Inbox";
 import DraftsIcon from "@mui/icons-material/Drafts";
 import Chip from "@mui/material/Chip";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
-
+import { styled, alpha } from "@mui/material/styles";
+import SearchIcon from "@mui/icons-material/Search";
+import InputBase from "@mui/material/InputBase";
+import TextField from "@mui/material/TextField";
 export default function Home() {
   // State variables
   const [items, setItems] = useState([]); // Products from the API
   const [collections, setCollections] = useState([]);
   const [selectedCollection, setSelectedCollection] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const Search = styled("div")(({ theme }) => ({
+    position: "relative",
+    borderRadius: theme.shape.borderRadius,
+    backgroundColor: alpha(theme.palette.common.white, 0.15),
+    "&:hover": {
+      backgroundColor: alpha(theme.palette.common.white, 0.25),
+    },
+    marginRight: theme.spacing(2),
+    marginLeft: 0,
+    width: "100%",
+    [theme.breakpoints.up("sm")]: {
+      marginLeft: theme.spacing(3),
+      width: "auto",
+    },
+  }));
+
+  const SearchIconWrapper = styled("div")(({ theme }) => ({
+    padding: theme.spacing(0, 2),
+    height: "100%",
+    position: "absolute",
+    pointerEvents: "none",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  }));
+
+  const StyledInputBase = styled(InputBase)(({ theme }) => ({
+    color: "inherit",
+    "& .MuiInputBase-input": {
+      padding: theme.spacing(1, 1, 1, 0),
+      // vertical padding + font size from searchIcon
+      paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+      transition: theme.transitions.create("width"),
+      width: "100%",
+      [theme.breakpoints.up("md")]: {
+        width: "20ch",
+      },
+    },
+  }));
 
   // State to indicate refetching state
   const [pagination, setPagination] = useState({ pageIndex: 1, pageSize: 12 });
@@ -231,7 +273,6 @@ export default function Home() {
   return (
     <>
       <Navigation cartItems={cartItems} toggleCheckout={toggleCheckout} />
-
       <Box
         sx={{
           position: "relative",
@@ -270,14 +311,24 @@ export default function Home() {
           </Typography>
         </Container>
       </Box>
-
-      <input
+      <Box sx={{ display: "flex", alignItems: "flex-end" }}>
+        <SearchIcon sx={{ color: "action.active", mr: 1, my: 0.5 }} />
+        <TextField
+          id="input-with-sx"
+          label="Search..."
+          variant="standard"
+          name="search"
+          value={searchQuery}
+          onChange={handleSearch}
+        />
+      </Box>
+      {/* <input
         type="text"
         placeholder="Search products..."
         name="search"
         value={searchQuery}
         onChange={handleSearch}
-      />
+      /> */}
       <Box sx={{ flexGrow: 1, marginTop: "4%" }}>
         <Grid container spacing={2}>
           <Grid xs={4}>
